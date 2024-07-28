@@ -2,8 +2,8 @@ import streamlit as st
 import pyrebase
 import os
 import uuid
-#import firebase_admin
-#from firebase_admin import credentials, auth
+from dotenv import load_dotenv
+load_dotenv()
 
 firebase_api = os.getenv('FIREBASE_API')
 
@@ -32,8 +32,11 @@ def signup():
     password = st.text_input("Password", type='password')
     confirm_password = st.text_input("Confirm Password", type='password')
     
-    if st.button("SignUp") and password == confirm_password:
+    if st.button("SignUp"):
         try:
+            if password != confirm_password:
+                st.error("Passwords do not match. Please try again.")
+                return
             uu_id = uuid.uuid4().hex
             user = auth.create_user_with_email_and_password(email, password)
             st.success(f"Account created successfully!\n \
@@ -49,10 +52,10 @@ def signup():
             db.child("users").child(user['localId']).set(user_data)
             
             st.info("You can now login using your email and password.")
-        except:
-            st.error("Unable to create account. Please try again.")
-    else:
-        st.error("Passwords do not match. Please try again.")
+        except Exception as e:
+            st.error("Unable to create account. Please try again. \
+                      The error message is as follows: \n" + str(e))
+
 
 def login():
     st.subheader("Login to Your Account")
