@@ -4,3 +4,4 @@ __pycache__
 
 .env
 config.py
+spark_stream.py
