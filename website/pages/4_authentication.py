@@ -53,8 +53,8 @@ def signup():
             
             st.info("You can now login using your email and password.")
         except Exception as e:
-            st.error("Unable to create account. Please try again. \
-                      The error message is as follows: \n" + str(e))
+            st.error("Unable to create account due to some issue. \n \
+                      Please check if your password is at least 6 characters long.")
 
 
 def login():
@@ -68,7 +68,6 @@ def login():
             st.success("Logged in successfully!")
             st.session_state.user = user
             st.session_state.signedout = False
-            st.experimental_rerun()
             
         except:
             st.error("Login failed. Please check your credentials.")
