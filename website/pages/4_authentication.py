@@ -1,6 +1,7 @@
 import streamlit as st
 import pyrebase
 import os
+import json
 import uuid
 from dotenv import load_dotenv
 load_dotenv()
@@ -21,6 +22,7 @@ firebase = pyrebase.initialize_app(firebaseConfig)
 auth= firebase.auth()
 
 db= firebase.database()
+st.session_state.db = db
 storage= firebase.storage()
 
 
@@ -49,12 +51,16 @@ def signup():
                 "user_id": uu_id,
                 "email": email
             }
+            
             db.child("users").child(user['localId']).set(user_data)
             
             st.info("You can now login using your email and password.")
         except Exception as e:
-            st.error("Unable to create account due to some issue. \n \
-                      Please check if your password is at least 6 characters long.")
+            if json.loads(e.args[1])['error']['message'] == "EMAIL_EXISTS":
+                st.info("An account with this email already exists. Please login.")
+            else:
+                st.error("Unable to create account due to some issue. \n \
+                          Please check if your password is at least 6 characters long.")
 
 
 def login():
@@ -67,6 +73,8 @@ def login():
             user = auth.sign_in_with_email_and_password(email, password)
             st.success("Logged in successfully!")
             st.session_state.user = user
+            st.session_state.user_data = db.child("users").child(user['localId']).get().val()
+            st.session_state.user_localId = user['localId']
             st.session_state.signedout = False
             
         except:

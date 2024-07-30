@@ -1,7 +1,8 @@
 from pyspark.sql import SparkSession, DataFrame
-from pyspark.sql.types import StructType, StructField, StringType, IntegerType, TimestampType
+from pyspark.sql.types import StructType, StructField, StringType, IntegerType, TimestampType, DoubleType
 from pyspark.sql.functions import from_json, col
 from config import config
+import pandas as pd
 
 def main():
     spark = SparkSession.builder \
@@ -22,13 +23,26 @@ def main():
     # spark.sparkContext.setLogLevel('WARN')
 
     # Fraud Schema
+    # fraud_schema = StructType([
+    #     StructField('unique_id', StringType(), True),
+    #     StructField('company_id', StringType(), True),
+    #     StructField('transaction_id', StringType(), True),
+    #     StructField('transaction_time', TimestampType(), True),
+    #     StructField('transaction_amount', IntegerType(), True)
+    # ])
+    
     fraud_schema = StructType([
         StructField('unique_id', StringType(), True),
-        StructField('company_id', StringType(), True),
-        StructField('transaction_id', StringType(), True),
         StructField('transaction_time', TimestampType(), True),
-        StructField('transaction_amount', IntegerType(), True)
-        
+        StructField('transaction_date', StringType(), True),
+        StructField('step', IntegerType(), True),
+        StructField('amount', DoubleType(), True),
+        StructField('oldbalanceOrig', DoubleType(), True),
+        StructField('newbalanceOrig', DoubleType(), True),
+        StructField('oldbalanceDest', DoubleType(), True),
+        StructField('newbalanceDest', DoubleType(), True),
+        StructField('type_Encoded', IntegerType(), True),
+        StructField('type', StringType(), True),
     ])
 
     def read_kafka_topic(topic, schema):
@@ -53,6 +67,12 @@ def main():
 
     fraud_df = read_kafka_topic('fraud_test_topic_1', fraud_schema)\
                     .alias('fraud')
+    
+    # Converting to Pandas Dataframe for predictions
+    fraud_df_pandas = fraud_df.toPandas()
+    pandas_df_testing = pd.read_csv('website/data/df_testing.csv')
+    pandas_df_testing = pd.concat([pandas_df_testing, fraud_df_pandas], ignore_index=True)
+    pandas_df_testing.to_csv('website/data/df_testing.csv', index=False)
     
     stream_writer(fraud_df, 's3a://streaming-fraud-data/checkpoints/fraud_data', 
                             's3a://streaming-fraud-data/data/fraud_data').awaitTermination()

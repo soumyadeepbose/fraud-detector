@@ -28,7 +28,9 @@ def download_file(bucket_name, s3_key, local_path):
     s3.Bucket(bucket_name).download_file(s3_key, local_path)
 
 # Function to download all Parquet files and combine them into a DataFrame
-def combine_parquet_files(bucket_name=os.getenv('DEFAULT_BUCKET'), prefix='', local_folder='downloads'):
+def combine_parquet_files(prefix='', local_folder='downloads'):
+    bucket_name = os.getenv('DEFAULT_BUCKET')
+
     if not os.path.exists(local_folder):
         os.makedirs(local_folder)
     
