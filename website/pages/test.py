@@ -56,4 +56,4 @@ def get_dataframe():
     combined_df = combine_parquet_files(prefix)
     return combined_df
 
-print(get_dataframe())
+print(get_dataframe().to_csv("dataframe.csv", index=False))

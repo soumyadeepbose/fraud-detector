@@ -1,8 +1,9 @@
 from pyspark.sql import SparkSession, DataFrame
 from pyspark.sql.types import StructType, StructField, StringType, IntegerType, TimestampType, DoubleType
+from pyspark.sql.functions import pandas_udf, PandasUDFType
 from pyspark.sql.functions import from_json, col
 from config import config
-import pandas as pd
+# import pandas as pd
 import joblib
 
 model = joblib.load('/opt/bitnami/spark/jobs/best_model.pkl')
@@ -86,20 +87,36 @@ def main():
     fraud_df = read_kafka_topic('fraud_test_topic_1', fraud_schema)\
                     .alias('fraud')
     
-    # Converting to Pandas Dataframe for predictions
-    fraud_df_pandas = fraud_df.toPandas()
-    fraud_df_pandas['fraud'] = model.predict(fraud_df_pandas[['step', 
-                                                              'amount', 
-                                                              'oldbalanceOrig',
-                                                              'newbalanceOrig',
-                                                              'oldbalanceDest',
-                                                              'newbalanceDest',
-                                                              'type_Encoded'
-                                                            ]])
+    # # Converting to Pandas Dataframe for predictions
+    # fraud_df_pandas = fraud_df.toPandas()
+    # fraud_df_pandas['fraud'] = model.predict(fraud_df_pandas[['step', 
+    #                                                           'amount', 
+    #                                                           'oldbalanceOrig',
+    #                                                           'newbalanceOrig',
+    #                                                           'oldbalanceDest',
+    #                                                           'newbalanceDest',
+    #                                                           'type_Encoded'
+    #                                                         ]])
     
-    #Converting back to Spark DataFrame
-    fraud_df = spark.createDataFrame(fraud_df_pandas, 
-                                     schema=fraud_schema_with_predictions)
+    # #Converting back to Spark DataFrame
+    # fraud_df = spark.createDataFrame(fraud_df_pandas, 
+    #                                  schema=fraud_schema_with_predictions)
+    
+    # Define a Pandas UDF for making predictions
+    @pandas_udf(fraud_schema_with_predictions, PandasUDFType.GROUPED_MAP)
+    def predict_fraud(fraud_pdf):
+        fraud_pdf['fraud'] = model.predict(fraud_pdf[['step', 
+                                                    'amount', 
+                                                    'oldbalanceOrig',
+                                                    'newbalanceOrig',
+                                                    'oldbalanceDest',
+                                                    'newbalanceDest',
+                                                    'type_Encoded'
+                                                ]])
+        return fraud_pdf
+
+    # Apply the Pandas UDF
+    fraud_df = fraud_df.groupBy().apply(predict_fraud)
 
     stream_writer(fraud_df, 's3a://streaming-fraud-data/checkpoints/fraud_data', 
                             's3a://streaming-fraud-data/data/fraud_data').awaitTermination()
