@@ -2,7 +2,7 @@ import streamlit as st
 import json
 
 st.set_page_config(
-    page_title="Hello",
+    page_title="FraudCatch Home",
     page_icon="👋",
 )
 
