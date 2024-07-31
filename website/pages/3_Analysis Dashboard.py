@@ -10,8 +10,8 @@ load_dotenv()
 
 st.set_page_config(initial_sidebar_state='expanded')
 
-with open('website/style.css') as f:
-    st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+# with open('website/style.css') as f:
+#     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
 # Global variables to keep track of processed files and the dataframe
 processed_files = set()
