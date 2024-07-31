@@ -4,3 +4,5 @@ kafka-topics --list --bootstrap-server broker:29092
 
 kafka-topics --delete --topic fraud_test_topic_1 --bootstrap-server broker:29092
 
+kafka-console-consumer --topic fraud_test_topic_1 --bootstrap-server broker:29092 --from-beginning
+

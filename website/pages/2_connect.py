@@ -6,6 +6,8 @@ import time, pickle, os, random, uuid, json
 from datetime import timedelta, datetime
 from dateutil import parser
 from confluent_kafka import SerializingProducer, KafkaException
+from dotenv import load_dotenv
+load_dotenv()
 
 KAFKA_BOOTSTRAP_SERVERS = os.getenv('KAFKA_BOOTSTRAP_SERVERS', 'localhost:9092')
 FRAUD_TOPIC = os.getenv('DEAFULT_FRAUD_TOPIC')
@@ -98,7 +100,7 @@ def send_to_kafka(producer, data):
         #     pass
 
         producer.produce(
-            topic=FRAUD_TOPIC,
+            topic="fraud_test_topic_1",
             key=str(data['unique_id']),
             value=json.dumps(data, default=json_serializer).encode('utf-8'),
             on_delivery=delivery_report
@@ -160,10 +162,13 @@ if __name__ == "__main__":
         st.sidebar.success("Server is online.")
         
         # Check if the user is logged in
-        if st.session_state.user is None:
+        try:
+            if st.session_state.user is None:
+                st.error("Please login to access this page.")
+            else:
+                main()
+        except:
             st.error("Please login to access this page.")
-        else:
-            main()
 
     except KafkaException as e:
         st.error("Server offline. Please contact the administrator.")

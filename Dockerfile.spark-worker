@@ -1,0 +1,11 @@
+FROM bitnami/spark:latest
+
+# Install Python and pip
+USER root
+RUN apt-get update && apt-get install -y python3 python3-pip
+
+# Install Python packages
+RUN pip3 install pandas scikit-learn lightgbm
+
+# Switch back to the bitnami user
+USER 1001

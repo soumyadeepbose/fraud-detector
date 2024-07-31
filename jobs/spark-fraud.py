@@ -3,6 +3,9 @@ from pyspark.sql.types import StructType, StructField, StringType, IntegerType, 
 from pyspark.sql.functions import from_json, col
 from config import config
 import pandas as pd
+import joblib
+
+model = joblib.load('/opt/bitnami/spark/jobs/best_model.pkl')
 
 def main():
     spark = SparkSession.builder \
@@ -45,6 +48,21 @@ def main():
         StructField('type', StringType(), True),
     ])
 
+    fraud_schema_with_predictions = StructType([
+        StructField('unique_id', StringType(), True),
+        StructField('transaction_time', TimestampType(), True),
+        StructField('transaction_date', StringType(), True),
+        StructField('step', IntegerType(), True),
+        StructField('amount', DoubleType(), True),
+        StructField('oldbalanceOrig', DoubleType(), True),
+        StructField('newbalanceOrig', DoubleType(), True),
+        StructField('oldbalanceDest', DoubleType(), True),
+        StructField('newbalanceDest', DoubleType(), True),
+        StructField('type_Encoded', IntegerType(), True),
+        StructField('type', StringType(), True),
+        StructField('fraud', IntegerType(), True)
+    ])
+
     def read_kafka_topic(topic, schema):
         return spark.readStream \
             .format('kafka') \
@@ -70,10 +88,19 @@ def main():
     
     # Converting to Pandas Dataframe for predictions
     fraud_df_pandas = fraud_df.toPandas()
-    pandas_df_testing = pd.read_csv('website/data/df_testing.csv')
-    pandas_df_testing = pd.concat([pandas_df_testing, fraud_df_pandas], ignore_index=True)
-    pandas_df_testing.to_csv('website/data/df_testing.csv', index=False)
+    fraud_df_pandas['fraud'] = model.predict(fraud_df_pandas[['step', 
+                                                              'amount', 
+                                                              'oldbalanceOrig',
+                                                              'newbalanceOrig',
+                                                              'oldbalanceDest',
+                                                              'newbalanceDest',
+                                                              'type_Encoded'
+                                                            ]])
     
+    #Converting back to Spark DataFrame
+    fraud_df = spark.createDataFrame(fraud_df_pandas, 
+                                     schema=fraud_schema_with_predictions)
+
     stream_writer(fraud_df, 's3a://streaming-fraud-data/checkpoints/fraud_data', 
                             's3a://streaming-fraud-data/data/fraud_data').awaitTermination()
 
