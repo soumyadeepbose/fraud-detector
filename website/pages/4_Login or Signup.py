@@ -7,15 +7,21 @@ from dotenv import load_dotenv
 load_dotenv()
 
 firebase_api = os.getenv('FIREBASE_API')
+authdomain = os.getenv('authDomain')
+projectid = os.getenv('projectId')
+storagebucket = os.getenv('storageBucket')
+messagingsenderid = os.getenv('messagingSenderId')
+appid = os.getenv('appId')
+databaseurl = os.getenv('databaseURL')
 
 firebaseConfig = {
-  'apiKey': firebase_api,
-  'authDomain': "humanaize-e91b0.firebaseapp.com",
-  'projectId': "humanaize-e91b0",
-  'storageBucket': "humanaize-e91b0.appspot.com",
-  'messagingSenderId': "616845459816",
-  'appId': "1:616845459816:web:b051ca72ba0ba1e5c096dd",
-  'databaseURL': "https://humanaize-e91b0-default-rtdb.europe-west1.firebasedatabase.app/"
+    "apiKey": firebase_api,
+    "authDomain": authdomain,
+    "projectId": projectid,
+    "storageBucket": storagebucket,
+    "messagingSenderId": messagingsenderid,
+    "appId": appid,
+    "databaseURL": databaseurl
 }
 
 firebase = pyrebase.initialize_app(firebaseConfig)
