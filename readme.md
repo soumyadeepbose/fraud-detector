@@ -70,7 +70,7 @@ We have created a production-level fraud detection and prevention system for fin
 - **Demo Video:** [Watch Demo](https://drive.google.com/file/d/1izJ7p9-Au0fZBDVPAhrIiRB8sdAkQ1no/view?usp=sharing)
 
 ### Project Architecture
-![Architecture Diagram](website/images/architecture_diagram.png)
+![Architecture Diagram](website/images/Project_FraudCatch_Alpha.svg)
 
 ---
 
