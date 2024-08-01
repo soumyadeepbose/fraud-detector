@@ -1,9 +1,9 @@
-# Project Fraudcatch `alpha`
+# Project Fraudcatch `alpha` 😊
 
 ## Info Edge Ventures AI Hackathon 2024 - Team Scamslayers💀💀✨
 
 ### Team Details
-- **Team Name:** Scamslayers
+- **Team Name:** Scamslayers💀💀✨
 - **Team Members:** [Sampriti Mitra](https://github.com/Sampriti03) and [Soumyadeep Bose](https://github.com/soumyadeepbose)
 
 ### Problem Statement
