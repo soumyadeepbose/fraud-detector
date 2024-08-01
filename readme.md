@@ -1,6 +1,6 @@
 # Project Fraudcatch `alpha`
 
-## Info Edge Ventures AI Hackathon 2024 - Team Scamslayers
+## Info Edge Ventures AI Hackathon 2024 - Team Scamslayers💀💀✨
 
 ### Team Details
 - **Team Name:** Scamslayers
